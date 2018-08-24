@@ -1,40 +1,44 @@
 import sqlite3
-from flask_restful import Resource,reqparse
-class User:
+from flask_restful import Resource, reqparse
 
-    def __init__(self,_id,username,password):
+
+class User(Resource):
+    TABLE_NAME = 'users'
+
+    def __init__(self, _id, username, password):
         self.id = _id
-        self.username =username
-        self.password =password
+        self.username = username
+        self.password = password
 
     @classmethod
-    def find_by_username(cls,username):
+    def find_by_username(cls, username):
         connection = sqlite3.connect('data.db')
         cursor = connection.cursor()
 
-
-        query = "SELECT * FROM users where username=?"
-        result = cursor.execute(query,(username,))
+        query = "SELECT * FROM {table} WHERE username=?".format(table=cls.TABLE_NAME)
+        result = cursor.execute(query, (username,))
         row = result.fetchone()
-        if row :
+        if row:
             user = cls(*row)
         else:
             user = None
+
         connection.close()
         return user
 
     @classmethod
-    def find_by_id(cls,_id):
+    def find_by_id(cls, _id):
         connection = sqlite3.connect('data.db')
         cursor = connection.cursor()
 
-        query = "SELECT * FROM users where id=?"
-        result = cursor.execute(query,(_id,))
+        query = "SELECT * FROM {table} WHERE id=?".format(table=cls.TABLE_NAME)
+        result = cursor.execute(query, (_id,))
         row = result.fetchone()
-        if row :
+        if row:
             user = cls(*row)
         else:
             user = None
+
         connection.close()
         return user
 
@@ -58,11 +62,15 @@ class UserRegister(Resource):
         data = UserRegister.parser.parse_args()
 
         if User.find_by_username(data['username']):
-            return {"message" :"A user with that User Name already Exists !"} ,400
+            return {"message": "User with that username already exists."}, 400
+
         connection = sqlite3.connect('data.db')
         cursor = connection.cursor()
-        query = "INSERT INTO users VALUES (NULL ,?,?)"
-        cursor.execute(query,(data['username'],data['password']))
+
+        query = "INSERT INTO {table} VALUES (NULL, ?, ?)".format(table=self.TABLE_NAME)
+        cursor.execute(query, (data['username'], data['password']))
+
         connection.commit()
         connection.close()
-        return {"Message":"User Created Succesfully"},201
+
+        return {"message": "User created successfully."}, 201
