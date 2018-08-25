@@ -13,7 +13,7 @@ class User:
         cursor = connection.cursor()
 
 
-        query = "SELECT * FROM users where username=?"
+        query = "SELECT * FROM users WHERE username=?"
         result = cursor.execute(query,(username,))
         row = result.fetchone()
         if row :
@@ -66,3 +66,33 @@ class UserRegister(Resource):
         connection.commit()
         connection.close()
         return {"Message":"User Created Succesfully"},201
+
+
+'''
+class Unregister(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('username',
+                        type=str,
+                        required=True,
+                        help="This field cannot be left blank!"
+                        )
+    
+    def delete(self):
+        
+        data = Unregister.parser.parse_args()
+
+        try:
+            if User.find_by_username(data['username']):
+                connection = sqlite3.connect('data.db')
+                cursor  = connection.cursor()
+                query = "DELETE FROM users WHERE username = ?"
+                cursor.execute(query,(data['username']))
+                connection.commit()
+                connection.close()
+                return {'Message' :  "User Deleted Succesfully"},201
+            else:
+                return {"Message" : "User does Not Exist with that Username"} , 404
+        except:
+
+            return {"Message" : " An Error has Occured "} ,500
+            '''
