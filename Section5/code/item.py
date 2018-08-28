@@ -141,16 +141,3 @@ class ItemList(Resource):
 
         
 
-
-'''
-@classmethod
-def update(cls,item):
-    connection = sqlite3.connect('data.db')
-    cursor = connection.cursor()
-        
-    query = "UPDATE items SET price = ? WHERE name =?"
-    cursor.execute(query,(item['name'],item['price']))
-
-    connection.commit()
-    connection.close()
-'''
